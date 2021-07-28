@@ -1,8 +1,8 @@
 # FROM instruction chooses the parent image for Docker.
 # I was using python 3.8 slim buster but maybe miniconda
 # is a better choice
-FROM python:3.8-slim-buster
-# FROM continuumio/miniconda3
+#FROM python:3.8-slim-buster
+FROM continuumio/miniconda3
 
 # LABEL instruction creates labels.
 # The first label is maintainer with the value Linux Hint.
@@ -24,13 +24,23 @@ ENV applocation /usr/src
 # from the Docker host to the Docker image.
 # You'll copy the source code to the Docker image.
 # Copy over libsnopt7 folder and libsnopt7_cpp folder from zip files I extracted
-COPY ~/lib/libsnopt* $applocation/
+#COPY /home/tpierce/lib/libsnopt* $applocation/
 
-COPY ~/lib/snopt7.lic $applocation/
+#COPY /home/tpierce/lib/snopt7.lic $applocation/
 
 # Maybe need to use ENV again here for some things?.
-ENV snopt7_license $applocation/snopt7.lic
-
+#ENV snopt7_license $applocation/snopt7.lic
+SHELL ["/bin/bash", "-c"]
+RUN conda init bash
+RUN conda config --set always_yes yes --set changeps1 no
+RUN conda create --yes -n PY3.8 python=3.8
+RUN echo "conda activate PY3.8" >> ~/.bashrc
+SHELL ["/bin/bash", "--login", "-c"]
+#RUN conda init bash
+#RUN conda activate PY3.8
+RUN conda config --add channels conda-forge
+RUN conda install --yes cython sphinx mock swig pip numpy scipy mpi4py matplotlib
+RUN conda install -c conda-forge pyoptspare
 # Install and update apt-get and get a bunch of base files I need
 RUN apt-get -y update && apt-get install -y --no-install-recommends \
 curl \
@@ -43,6 +53,22 @@ make \
 gfortran \
 git \
 && rm -rf /var/lib/apt/lists*
+
+RUN python -m pip install --upgrade pip;
+RUN python -m pip install sqlitedict;
+RUN python -m pip install nose;
+RUN python -m pip install networkx;
+RUN python -m pip install testflo==1.3.6;
+RUN python -m pip install pyyaml;
+RUN python -m pip install coveralls;
+RUN python -m pip install bokeh;
+
+RUN python -m pip install mkdocs
+RUN python -m pip install mkdocs-material
+RUN python -m pip install pymdown-extensions
+RUN python -m pip install mkdocs-macros-plugin
+RUN python -m pip install mkdocs-bibtex
+RUN python -m pip install mike
 # idk exactly if the rm command above is necessary but I see it a lot
 
 # RUN instruction runs commands,
@@ -54,16 +80,17 @@ git \
 #RUN pip install --upgrade pip
 #RUN pip install -r requirements.txt #don't have this maybe should
 
-RUN pip install 'openmdao[all]'
-RUN git clone https://github.com/OpenMDAO/dymos.git ./dymos.git
-RUN python -m pip install -e dymos.git[all]
-RUN git clone https://github.com/OpenMDAO/build_pyoptsparse.git ./build_pyoptsparse
+RUN git clone https://github.com/OpenMDAO/build_pyoptsparse
+#RUN pip install 'openmdao[all]'
+#RUN git clone https://github.com/OpenMDAO/dymos.git ./dymos.git
+#RUN python -m pip install -e dymos.git[all]
+#RUN git clone https://github.com/OpenMDAO/build_pyoptsparse.git ./build_pyoptsparse
 
 # # WORKDIR instruction changes the current directory in Docker image.
 # The command below changes directory to build_pyoptspare
 # The target directory uses the environment variable.
-ENV buildpyopt $applocation/build_pyoptspare
-WORKDIR $buildpyopt/
+#ENV buildpyopt ./build_pyoptspare
+#WORKDIR build_pyoptsparse
 # I think you can also just do this:
 #RUN cd build_pyoptspare
 
@@ -74,11 +101,11 @@ EXPOSE 5000
 # CMD instruction runs commands like RUN,
 # but the commands run when the Docker container launches.
 # Only one CMD instruction can be used.
-RUN chmod +x build_pyoptspare
-CMD ["./build_pyoptspare SNOPT=7.7 -s $applocation/libsnopt7", "app.py"]
+#RUN pwd
+#RUN ls
+#RUN chmod +x build_pyoptspare.sh
+#CMD ["./build_pyoptspare.sh SNOPT=7.7 -s $applocation/libsnopt7/", "app.py"]
 
 # Volume is the mechanism for persisting data /app
-VOLUME $applocation/
-WORKDIR $applocation/
-
-
+VOLUME /app/
+WORKDIR /app/
