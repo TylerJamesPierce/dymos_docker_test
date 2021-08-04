@@ -114,6 +114,8 @@ WORKDIR $applocation/dymos
 RUN python -m pip install -e .[all]
 
 WORKDIR $applocation
+RUN conda install jupyter -y --quiet && mkdir \
+    notebook
 RUN conda list > conda.list.txt
 
 RUN export LD_LIBRARY_PATH=/usr/src/ipopt/lib
