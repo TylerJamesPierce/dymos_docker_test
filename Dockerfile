@@ -26,7 +26,7 @@ ENV applocation /usr/src
 
 # Copy over libsnopt7 folder and libsnopt7_cpp folder from zip files I extracted
 
-# This doesn't work the way I think it did.
+# This doesn't work the way I think it did. 
 #COPY /home/tpierce/lib/libsnopt* $applocation/
 #COPY /home/tpierce/lib/snopt7.lic $applocation/
 #I have libsnopt7 libsnopt7_cpp libsqopt7 libsqopt7_cpp snop7.lic sqopt7.lic
@@ -119,10 +119,11 @@ RUN conda list > conda.list.txt
 RUN export LD_LIBRARY_PATH=/usr/src/ipopt/lib
 RUN dymos_path=$(python -c "import dymos as dm; import inspect; import pathlib; p=pathlib.PurePath(inspect.getfile(dm)).parent; print(p)" | tail -1)
 RUN export OMPI_MCA_rmaps_base_oversubscribe=1
-RUN testflo $dymos_path -n 1 --show_skipped --coverage --coverpkg dymos; ##Skipped
-RUN testflow -n 1 --show_skipped --coverage --coverpkg dymos; ## START
-RUN testflo -n 1 joss/test --pre_announce
-RUN testflo -b benchmark --pre_announce
+#RUN testflo $dymos_path -n 1 --show_skipped --coverage --coverpkg dymos;
+#RUN testflow -n 1 --show_skipped --coverage --coverpkg dymos;
+#RUN testflo -n 1 joss/test --pre_announce
+#RUN testflo -b benchmark --pre_announce
+
 #RUN pip install 'openmdao[all]'
 #RUN git clone https://github.com/OpenMDAO/dymos.git ./dymos.git
 #RUN python -m pip install -e dymos.git[all]
